@@ -1,0 +1,76 @@
+
+// Grammar of input files
+
+?start: (_NL)* program (_NL)*
+
+assign: VARIABLE ASSIGN assign_right
+?assign_right: arithm | dist
+
+dist: DIST_NAME "(" [arithm ("," arithm)*] ")"
+
+condition: atom | NOT "(" condition ")" | condition (AND | OR) condition | "(" condition ")"
+atom: arithm COP arithm | TRUE | FALSE
+
+?statem: assign
+       | if_statem
+       | while_statem
+       | observe_statem
+
+observe_statem: "observe" condition
+while_statem: "while" condition ":" (_NL)+ statems "end"
+if_statem: "if" condition ":" (_NL)+ statems ["else" ":" (_NL)+ statems] "end"
+statems: statem ((_NL)+ statem)* (_NL)+
+
+program: [typedefs] main
+
+type: TYPE_NAME "(" [arithm ("," arithm)*] ")"
+typedef: VARIABLE ":" type
+typedefs: "types" (_NL)* typedef (_NL typedef)* (_NL)* "end" (_NL)*
+
+main: statems+
+
+ASSIGN: "="
+
+TRUE: "true"
+FALSE: "false"
+AND: "&&"
+OR: "||"
+NOT: "!"
+
+EQ:  "=="
+NEQ: "/="
+LE:  "<"
+GE:  ">"
+LEQ: "<="
+GEQ: ">="
+COP: LEQ | GEQ | NEQ | EQ | LE | GE
+
+VARIABLE: NAME
+TYPE_NAME: UCASE_LETTER ("_" | LETTER | DIGIT)*
+DIST_NAME: ("Bernoulli" | "DiscreteUniform")
+
+arithm: ARITHM_ATOM
+      | BOPEN arithm BCLOSE
+      | arithm (PLUS | MINUS | MULT | POW | DIV) arithm
+ARITHM_ATOM: ["+" | "-"] (NUMBER | "I" | LCASE_LETTER | "_")+
+PLUS: "+"
+MINUS: "-"
+MULT: "*"
+DIV: "/"
+POW: "**"
+BOPEN: "("
+BCLOSE: ")"
+
+%import common.WS_INLINE
+%import common.LCASE_LETTER
+%import common.UCASE_LETTER
+%import common.LETTER
+%import common.DIGIT
+%import common.CNAME -> NAME
+%import common.SH_COMMENT -> COMMENT
+%import common.SIGNED_NUMBER
+%import common.NUMBER
+
+_NL: (/\r?\n[\t ]*/)+
+
+%ignore WS_INLINE | COMMENT

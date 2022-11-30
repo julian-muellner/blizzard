@@ -1,6 +1,7 @@
 from argparse import Namespace
 from cli.argument_parser import ArgumentParser
-from executors.conversion_executor import ConversionExecutor
+from executors.sink_translation import SinkTranslation
+from executors.absorbing_translation import AbsorbingTranslation
 from inputparser.parser import Parser
 from .action import Action
 from program import Program
@@ -18,7 +19,7 @@ class ConvertAction(Action):
         benchmark = args[0]
         result_filename = self.cli_args.convert
         program = parse_program(benchmark)
-        conversion = ConversionExecutor(program)
+        conversion = AbsorbingTranslation(program)
         prism = conversion.convertProgram()
         print(program)
         print("\n" * 1 + "#" * 80 + "\n" * 1)

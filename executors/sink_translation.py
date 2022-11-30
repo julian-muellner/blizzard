@@ -41,7 +41,9 @@ class MCState:
     def __hash__(self):
         return hash((self.pc, self.state))
 
-class ConversionExecutor(Executor):
+class SinkTranslation(Executor):
+    """Translate a program into a Markov chain that has a sink state. 
+    Expected visit times of non-terminal states is reachability probability"""
     states: Set[MCState]
     transitions: Dict[MCState, Set[Tuple[MCState, Expr]]] # map states to their outgoing edges
     program: Program
@@ -62,10 +64,12 @@ class ConversionExecutor(Executor):
 
         # sink states
         self.sink_state = MCState(empty_state, self.program.max_pc + 1)
+        self.states.add(self.sink_state)
         self.__add_transition__(self.sink_state, self.sink_state, 1)
 
         # construct violation state
         self.violation_state = MCState(empty_state, -1)
+        self.states.add(self.violation_state)
         self.__add_transition__(self.violation_state, self.sink_state, 1)
 
         # kick off execution

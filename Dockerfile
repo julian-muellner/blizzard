@@ -1,14 +1,13 @@
-FROM movesrwth/storm:1.7.0
+FROM blizzard-base:latest
 
-LABEL maintainer="Julian Muellner (TU Wien)"
+LABEL maintainer="Julian Muellner"
 
-WORKDIR /var
-COPY . /var/blizzard
-WORKDIR /var/blizzard
+WORKDIR /opt/blizzard
+COPY requirements.txt .
+RUN pip install -r requirements.txt
 
-RUN apt-get install python3-pip -y
-RUN chmod +x /var/blizzard/blizzard.py
-RUN pip install -r /var/blizzard/requirements.txt
+COPY . .
+RUN chmod +x blizzard.py
 
 ENTRYPOINT bash
 

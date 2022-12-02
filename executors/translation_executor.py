@@ -13,8 +13,9 @@ from program.assignment.dist_assignment import DistAssignment
 from program.assignment.poly_assignment import PolyAssignment
 from program.endstatem.endstatem import EndStatem
 
-
-# Notes regarding the encoding:
+######################################
+# Notes regarding the encoding:      #
+######################################
 # The state encoding is quite obvious, but the pc always talks about the line AFTER execution
 
 # Initial state: every program variable is set to lower_bound - 1, pc is set to 0
@@ -23,6 +24,15 @@ from program.endstatem.endstatem import EndStatem
 # Terminal states: PC = program.max_pc
 # Violation state: PC = -1; all variables = lower bound - 1
 # Sink state: PC = program.max_pc + 1; all variables = lower bound - 1
+
+###############################################
+# Notes regarding the state memoization:      #
+###############################################
+# To avoid endless looping, we check if we have seen a state before.
+# We do so at while loops and distribution assignments 
+# There may be room for improvement by dropping variables that
+#   1. go out of scope
+#   2. are overwritten in the next loop iteration
 
 class TranslationExecutor(Executor):
     """Class to translate a program into either an absorbing or a sinking Markov chain"""
@@ -84,12 +94,20 @@ class TranslationExecutor(Executor):
             return [(stmt.next_stmt, ctx)]
 
     def executeWhile(self, stmt: WhileStatem, ctx):
-        state, _ = ctx
+        state, pred = ctx
+
+        # loops need to check state in case state is not modified in body
+        mc_state = MarkovState(state, stmt.pc)
+        self.mc.add_transition(pred, mc_state, 1)
+        if self.mc.has_state(mc_state):
+            return []
+        self.mc.add_state(mc_state)
+
         cond = stmt.condition.evaluate(state)
         if cond:
-            return [(stmt.body[0], ctx)]
+            return [(stmt.body[0], (state, mc_state))]
         else:
-            return [(stmt.next_stmt, ctx)]
+            return [(stmt.next_stmt, (state, mc_state))]
 
     def executeDistAssign(self, stmt: DistAssignment, ctx):
         state, pred = ctx
@@ -116,26 +134,13 @@ class TranslationExecutor(Executor):
         e = stmt.evaluate_right_side(state)
         self.__assert_variable_constraints__(stmt.variable, e)
         state[stmt.variable] = int(e)
-        mc_state = MarkovState(state, stmt.pc)
-        
-        self.mc.add_transition(pred, mc_state, 1)
-        if self.mc.has_state(mc_state):
-            return []
-
-        self.mc.add_state(mc_state)
-        return [(stmt.next_stmt, (state, mc_state))]
+        return [(stmt.next_stmt, (state, pred))]
 
     def executeObserve(self, stmt: ObserveStatem, ctx):
         state, pred = ctx
         cond = stmt.condition.evaluate(state)
         if cond:
-            mc_state = MarkovState(state, stmt.pc)
-            self.mc.add_transition(pred, mc_state, 1)
-            if self.mc.has_state(mc_state):
-                return []
-            
-            self.mc.add_state(mc_state)
-            return [(stmt.next_stmt, (state, mc_state))]
+            return [(stmt.next_stmt, ctx)]
         else:
             self.mc.add_transition(pred, self.violation_state, 1)
             return []

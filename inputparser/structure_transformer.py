@@ -39,7 +39,10 @@ class StructureTransformer(Transformer):
     def if_statem(self, args) -> IfStatem:
         condition = args[0]
         if_branch = args[1]
-        else_branch = args[2]
+        if len(args) > 2:
+            else_branch = args[2]
+        else:
+            else_branch = None
         return IfStatem(condition, if_branch, else_branch)
         
     def while_statem(self, args) -> WhileStatem:

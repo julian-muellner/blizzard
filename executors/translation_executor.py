@@ -41,13 +41,19 @@ class TranslationExecutor(Executor):
     program: Program
     violation_state: MarkovState # state where violated assertions go
     enable_sink: bool
+    analyze_vars: Set[Symbol] # set of variables that are relevant for evaluation of the Markov Chain
     sink_state: MarkovState # state where everything is going in the end if enable_sink is defined
 
-    def __init__(self, program: Program, enable_sink=False):
+    def __init__(self, program: Program, enable_sink=False, analyze_vars: Set[Symbol] = None):
         self.mc = MarkovChain()
         self.terminal_states = set()
         self.program = program
         self.enable_sink = enable_sink
+
+        if analyze_vars == None:
+            self.analyze_vars = self.program.variables
+        else:
+            self.analyze_vars = analyze_vars
 
     def convertProgram(self):
         # empty state
@@ -148,6 +154,12 @@ class TranslationExecutor(Executor):
     def executeEnd(self, stmt: EndStatem, ctx):
         # add tranistion into end state, only change PC
         state, pred = ctx
+
+        # ignore variables that should not be analyze, merge these states into one where they are uninitialized
+        for variable in state:
+            if variable not in self.analyze_vars:
+                state[variable] = self.program.get_type(variable).lower - 1
+
         mc_state = MarkovState(state, stmt.pc)
         self.mc.add_transition(pred, mc_state, 1)
         self.mc.add_state(mc_state)

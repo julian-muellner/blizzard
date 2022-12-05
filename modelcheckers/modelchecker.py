@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from argparse import Namespace
 from typing import Dict, List, Tuple
 
 from symengine.lib.symengine_wrapper import Expr, Symbol
@@ -18,8 +19,11 @@ class ModelCheckingStateResult:
         if self.is_violation:
             txt += "observation-violation"
         else:
-            for key, value in self.state:
-                txt += f"{key}: {value}, "
+            for i, (key, value) in enumerate(self.state):
+                if i == 0:
+                    txt += f"{key}: {value}"
+                else:
+                    txt += f", {key}: {value}"
         return txt + f"): {self.probability}"
 
     def __eq__(self, other):
@@ -42,3 +46,4 @@ class ModelChecker(ABC):
     @abstractmethod
     def analyzeProperties(self, properties: List[str]) -> List[Tuple[str, float]]:
         pass
+

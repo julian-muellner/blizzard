@@ -11,18 +11,40 @@ class ArgumentParser:
             metavar="benchmarks",
             type=str,
             nargs="+",
-            help="A list of benchmarks to convert"
+            help="A list of benchmarks"
         )
         self.argument_parser.add_argument(
             "--convert",
             type=str,
-            help="If set we convert the programs to PRISM format, argument: filename"
+            nargs="*",
+            help="If set we convert the programs to PRISM format. Optional: Pass variables that should be kept in final states."
         )
         self.argument_parser.add_argument(
             "--analyze",
             type=str,
-            help="If set we run a model checker and dump the result to a file, argument: filename"
+            nargs="*",
+            help="Analyze the given program and extract posterior over list of variables given in argument. Example: --analyze x y z"
         )
+        self.argument_parser.add_argument(
+            "--out",
+            type=str,
+            help="Write the result of a call to a file given as argument. Works only for the last benchmark."
+        )
+        self.argument_parser.add_argument(
+            "--checker",
+            type=str,
+            choices=["storm", "prism"],
+            default="storm",
+            help="Select the model checker used to discharge the resulting query."
+        )
+        self.argument_parser.add_argument(
+            "--style",
+            type=str,
+            choices=["steadystate", "property"],
+            default="steadystate",
+            help="Select how the model checker will be run on the query. Either use steady-state probabilities or run property-by-property queries."
+        )
+
         # TODO: select model checker
 
     def parse_args(self):

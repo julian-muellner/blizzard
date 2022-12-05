@@ -45,8 +45,6 @@ class ArgumentParser:
             help="Select how the model checker will be run on the query. Either use steady-state probabilities or run property-by-property queries."
         )
 
-        # TODO: select model checker
-
     def parse_args(self):
         args = self.argument_parser.parse_args()
         args.benchmarks = [b for bs in map(glob.glob, args.benchmarks) for b in bs]

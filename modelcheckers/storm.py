@@ -3,20 +3,22 @@ import json
 import os
 import re
 
-from typing import Dict, List, Tuple
+from typing import Callable, Dict, List, Tuple
 
 from executors import MarkovState
 from .modelchecker import ModelChecker, ModelCheckingStateResult
 
 class StormModelChecker(ModelChecker):
-    def __init__(self):
-        None
+
+    def __init__(self, is_valid: Callable[[str, int], bool]):
+        super().__init__(is_valid)
 
     def __convert_json_to_result__(self, state):
         prob = float(state["v"])
         pc = int(state["s"]["pc"])
         del state["s"]["pc"]
-        return ModelCheckingStateResult(state["s"], prob)
+        result = dict((var, value) for var, value in state["s"].items() if self.is_valid(var, value)) # remove uninit vars
+        return ModelCheckingStateResult(result, prob)
 
     def __analyze_outfile__(self, outfile: str, target_pc: int, violation_pc: int) -> List[ModelCheckingStateResult]:
         results = []

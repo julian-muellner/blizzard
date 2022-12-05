@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from argparse import Namespace
-from typing import Dict, List, Tuple
+from typing import Callable, Dict, List, Tuple
 
 from symengine.lib.symengine_wrapper import Expr, Symbol
 
@@ -39,6 +39,11 @@ class ModelCheckingStateResult:
         return hash((self.probability, self.state, self.is_violation))
 
 class ModelChecker(ABC):
+    is_valid: Callable[[str, int], bool] # returns true iff the value indicates that the variable is initialized
+
+    def __init__(self, is_valid: Callable[[str, int], bool]):
+        self.is_valid = is_valid
+
     @abstractmethod
     def analyzeSteadyState(self, inputfile: str, tmp_folder: str, target_pc: int, violation_pc: int) -> List[ModelCheckingStateResult]:
         pass

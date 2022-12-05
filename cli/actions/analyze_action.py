@@ -39,10 +39,11 @@ class AnalyzeAction(Action):
         with open(tmp_prism, "w") as f:
             f.write(prism)
 
+        is_valid = lambda var, val: (val >= self.program.get_type(sympify(var)).lower) and (val <= self.program.get_type(sympify(var)).upper)
         if self.cli_args.checker == "prism":
-            mc = PrismModelChecker()
+            mc = PrismModelChecker(is_valid)
         elif self.cli_args.checker == "storm":
-            mc = StormModelChecker()
+            mc = StormModelChecker(is_valid)
         else:
             raise Exception("Unsupported Model Checker specified!")
 

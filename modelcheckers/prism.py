@@ -3,13 +3,13 @@ import json
 import os
 import re
 
-from typing import Dict, List, Tuple
+from typing import Callable, Dict, List, Tuple
 
 from .modelchecker import ModelChecker, ModelCheckingStateResult
 
 class PrismModelChecker(ModelChecker):
-    def __init__(self):
-        None
+    def __init__(self, is_valid: Callable[[str, int], bool]):
+        super().__init__(is_valid)
 
     def __parse_csv__(self, csv: str) -> List[str]:
         """
@@ -26,16 +26,17 @@ class PrismModelChecker(ModelChecker):
         with open(statefile, "r") as stateio, open(resultfile, "r") as resultio:
             # extract ordering
             ordering = self.__parse_csv__(stateio.readline())
-            for state, result in zip(stateio, resultio):
+            for state, prob in zip(stateio, resultio):
                 variable_states = self.__parse_csv__(state)
                 variable_states = map(int, variable_states)
                 state = dict(zip(ordering, variable_states))
 
                 if state["pc"] == target_pc:
                     del state["pc"]
-                    results.append(ModelCheckingStateResult(state, float(result)))
+                    result = dict((var, value) for var, value in state.items() if self.is_valid(var, value)) # remove uninit vars
+                    results.append(ModelCheckingStateResult(result, float(prob)))
                 elif state["pc"] == violation_pc:
-                    results.append(ModelCheckingStateResult({}, float(result), is_violation=True))
+                    results.append(ModelCheckingStateResult({}, float(prob), is_violation=True))
         return results
 
     def analyzeSteadyState(self, inputfile: str, tmp_folder: str, target_pc: int, violation_pc: int) -> List[ModelCheckingStateResult]:

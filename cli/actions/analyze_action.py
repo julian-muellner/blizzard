@@ -1,12 +1,15 @@
 from argparse import Namespace
 import os
+import re
 import time
-from executors import TranslationExecutor
+from typing import Set
+from executors import TranslationExecutor, MarkovState
 from modelcheckers import ModelChecker, PrismModelChecker, StormModelChecker
+from modelcheckers.modelchecker import ModelCheckingStateResult
 from .action import Action
 from program import Program
 from cli.common import parse_program
-from symengine.lib.symengine_wrapper import sympify
+from symengine.lib.symengine_wrapper import sympify, Symbol
 
 
 class AnalyzeAction(Action):
@@ -26,7 +29,7 @@ class AnalyzeAction(Action):
         else:
             target_variables = {sympify(v) for v in self.cli_args.analyze}
             if not self.program.variables.issuperset(target_variables):
-                raise Exception(f"Conversion variables are not proper program variables.")
+                raise Exception(f"Analyze variables are not proper program variables.")
 
         conversion = TranslationExecutor(self.program, enable_sink=False, analyze_vars=target_variables)
         prism = conversion.convertProgram()
@@ -39,7 +42,7 @@ class AnalyzeAction(Action):
         with open(tmp_prism, "w") as f:
             f.write(prism)
 
-        is_valid = lambda var, val: (val >= self.program.get_type(sympify(var)).lower) and (val <= self.program.get_type(sympify(var)).upper)
+        is_valid = lambda var, val: (val >= self.program.get_type(var).lower) and (val <= self.program.get_type(var).upper)
         if self.cli_args.checker == "prism":
             mc = PrismModelChecker(is_valid)
         elif self.cli_args.checker == "storm":
@@ -47,18 +50,15 @@ class AnalyzeAction(Action):
         else:
             raise Exception("Unsupported Model Checker specified!")
 
+        results = None
         if self.cli_args.style == "steadystate":
-            self.__analyze_steadystate__(mc, tmp_prism, tmp_folder, self.program.max_pc, conversion.violation_state.pc)
+            results = self.__analyze_steadystate__(mc, tmp_prism, self.program.symbols, tmp_folder, self.program.max_pc, conversion.violation_state.pc)
         elif self.cli_args.style == "property":
-            self.__analyze_property__(mc, tmp_prism)
+            results = self.__analyze_property__(mc, tmp_prism, self.program.symbols, conversion.terminal_states, conversion.violation_state.pc)
         else:
             raise Exception("Unsupported Query style specified!")
 
-        os.remove(tmp_prism)
-        os.rmdir(tmp_folder)
 
-    def __analyze_steadystate__(self, mc: ModelChecker, prismfile: str, folder: str, target_pc: int, violation_pc: int):
-        results = mc.analyzeSteadyState(prismfile, folder, target_pc, violation_pc)
         if results is not None:
             for result in results:
                 print(str(result))
@@ -68,21 +68,28 @@ class AnalyzeAction(Action):
                     for result in results:
                         f.write(str(result) + "\n")
 
-    def __analyze_property__(self, mc: ModelChecker, prismfile: str):
-        properties = [
-            "P=? [ F (pc=8)&(x=5)]",
-            "P=? [ F (pc=8)&(x=6)]",
-            "P=? [ F (pc=8)&(x=7)]",
-            "P=? [ F (pc=8)&(x=0)]",
-            "P=? [ F (pc=8)&(x=-1)]",
-        ]
-        results = mc.analyzeProperties(prismfile, properties)
+        os.remove(tmp_prism)
+        os.rmdir(tmp_folder)
 
-        if results is not None:
-            for (prop, result) in results:
-                    print(f"{prop} -> {result}")
-                
-            if self.cli_args.out is not None:
-                with open(self.cli_args.out, "w") as f:
-                    for (prop, result) in results:
-                        f.write(f"{prop} -> {result}\n")
+    def __analyze_steadystate__(self, mc: ModelChecker, prismfile: str, symbols: Set[Symbol], folder: str, target_pc: int, violation_pc: int):
+        return mc.analyzeSteadyState(prismfile, symbols, folder, target_pc, violation_pc)
+
+    def __analyze_property__(self, mc: ModelChecker, prismfile: str, symbols: Set[Symbol], terminal_states: Set[MarkovState], violation_pc: int):
+
+        # compute query for each terminal state, map back to original state
+        mapping = dict((f"P=? [ F {s.get_prism_encoding()} ]", s) for s in terminal_states)
+        mc_results = mc.analyzeProperties(prismfile, symbols, mapping.keys())
+
+        if mc_results is None:
+            return None
+
+        results = []
+        for (prop, probability) in mc_results:
+            mc_state = mapping[prop]
+            if mc_state.pc == violation_pc:
+                if re.fullmatch(r"0+(\.0*)?", probability) is None: # check if 0.0 or 0
+                    results.append(ModelCheckingStateResult({}, probability, is_violation=True))
+            else:
+                result = dict((var, value) for var, value in mc_state.state if mc.is_valid(var, value)) # remove uninit vars
+                results.append(ModelCheckingStateResult(result, probability))
+        return results

@@ -1,15 +1,15 @@
 from abc import ABC, abstractmethod
 from argparse import Namespace
-from typing import Callable, Dict, List, Tuple
+from typing import Callable, Dict, List, Set, Tuple
 
 from symengine.lib.symengine_wrapper import Expr, Symbol
 
 class ModelCheckingStateResult:
     state: Tuple[Tuple[str, int]]
-    probability: float
+    probability: str
     is_violation: bool
 
-    def __init__(self, state: Dict[str, int], prob: float, is_violation: bool = False):
+    def __init__(self, state: Dict[str, int], prob: str, is_violation: bool = False):
         self.state = tuple(state.items())
         self.probability = prob
         self.is_violation = is_violation
@@ -45,10 +45,10 @@ class ModelChecker(ABC):
         self.is_valid = is_valid
 
     @abstractmethod
-    def analyzeSteadyState(self, inputfile: str, tmp_folder: str, target_pc: int, violation_pc: int) -> List[ModelCheckingStateResult]:
+    def analyzeSteadyState(self, inputfile: str, symbols: Set[Symbol], tmp_folder: str, target_pc: int, violation_pc: int) -> List[ModelCheckingStateResult]:
         pass
 
     @abstractmethod
-    def analyzeProperties(self, properties: List[str]) -> List[Tuple[str, float]]:
+    def analyzeProperties(self, symbols: Set[Symbol], properties: List[str]) -> List[Tuple[str, str]]:
         pass
 

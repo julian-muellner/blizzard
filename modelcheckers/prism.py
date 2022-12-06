@@ -84,8 +84,14 @@ class PrismModelChecker(ModelChecker):
         cmd = ["prism", inputfile, "-pf", propstr]
         if len(symbols) > 0:
             cmd.append("-param")
-            for symbol in symbols:
-                cmd.append(str(symbol))
+            
+            paramstr = ""
+            for i, symbol in enumerate(symbols):
+                if i == 0:
+                    paramstr += str(symbol)
+                else:
+                    paramstr += f",{str(symbol)}"
+            cmd.append(paramstr)
         
         completed = subprocess.run(cmd, capture_output=True, text=True)
         if completed.returncode > 0:

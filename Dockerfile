@@ -1,4 +1,4 @@
-FROM blizzard-base:latest
+FROM jmuellner/blizzard-base:latest
 
 LABEL maintainer="Julian Muellner"
 

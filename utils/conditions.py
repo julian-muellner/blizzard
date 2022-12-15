@@ -6,6 +6,9 @@ def get_valid_values(possible_values: Set[Expr], cop: str, integer: Expr):
     if cop == "==":
         return {v for v in possible_values if bool(v == integer)}
 
+    if cop == "/=":
+        return {v for v in possible_values if bool(v != integer)}
+
     if cop == "<=":
         return {v for v in possible_values if bool(v <= integer)}
 
@@ -24,6 +27,9 @@ def get_valid_values(possible_values: Set[Expr], cop: str, integer: Expr):
 def evaluate_cop(left, cop: str, right):
     if cop == "==":
         return left == right
+
+    if cop == "/=":
+        return left != right
 
     if cop == "<=":
         return left <= right

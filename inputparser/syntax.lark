@@ -47,7 +47,7 @@ COP: LEQ | GEQ | NEQ | EQ | LE | GE
 
 VARIABLE: NAME
 TYPE_NAME: UCASE_LETTER ("_" | LETTER | DIGIT)*
-DIST_NAME: ("Bernoulli" | "DiscreteUniform")
+DIST_NAME: ("Bernoulli" | "DiscreteUniform" | "Categorical")
 
 arithm: ARITHM_ATOM
       | BOPEN arithm BCLOSE

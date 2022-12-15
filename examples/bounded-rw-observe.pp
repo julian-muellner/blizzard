@@ -6,7 +6,7 @@ types
 end
 
 x = 4
-while x > 0 && x < 5:
+while x > 0 && x < 10:
     f = Bernoulli(p)
     if f == 1:
         z = DiscreteUniform(1,3)
@@ -14,5 +14,5 @@ while x > 0 && x < 5:
     else:
         x = x - 2
     end
-    observe x < 4 
+    observe x /= 8
 end

@@ -1,10 +1,12 @@
 from .bernoulli import Bernoulli
 from .discrete_uniform import DiscreteUniform
 from .distribution import Distribution
+from .categorical import Categorical
 
 __distributions__ = {
     "Bernoulli": Bernoulli,
     "DiscreteUniform": DiscreteUniform,
+    "Categorical": Categorical
 }
 
 def distribution_factory(dist_name: str, parameters) -> Distribution:

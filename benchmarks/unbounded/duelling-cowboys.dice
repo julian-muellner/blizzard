@@ -1,0 +1,15 @@
+//result = (turn, aWins, bWins)
+//turn = true means it is A's turn
+
+fun singleRun(result: (bool, (bool, bool))) {
+    let turn = fst result in
+    let win = snd result in
+    let awin = fst win in
+    let bwin = snd win in
+    if (awin || bwin) then result else 
+        if turn then (!turn, (flip(0.6666), false))
+        else (!turn, (false, flip(0.8)))
+}
+
+let init = (true, (false, false)) in
+iterate(singleRun, init, 100)

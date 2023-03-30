@@ -1,5 +1,6 @@
 # FROM: https://arxiv.org/pdf/math/0110143.pdf
-# Similar example used in: Coupling Proofs Are Probabilistic Product Programs, CAV'17, PSI Implementation: https://github.com/eth-sri/psi/blob/master/test/cards.psi
+# Similar example used in: Coupling Proofs Are Probabilistic Product Programs, CAV'17: https://dl.acm.org/doi/pdf/10.1145/3093333.3009896, 
+# PSI Implementation: https://github.com/eth-sri/psi/blob/master/test/cards.psi
 
 types
     x1 : FiniteRange(1,34)

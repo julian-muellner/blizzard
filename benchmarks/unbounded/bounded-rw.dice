@@ -1,0 +1,13 @@
+//result = (x, aWins, bWins)
+//x in range 0, 13; shifted up by one as dice does only support unsigned ints
+
+fun singleRun(x: int(4)) {
+    if (int(4,1) < x) && (x < int(4,11)) then
+        if flip(0.333333333) then x + discrete(0.0, 0.333334, 0.333333, 0.333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0) 
+        else x - int(4,2)
+    else 
+        x
+}
+
+let init = int(4, 5) in
+iterate(singleRun, init, 100)

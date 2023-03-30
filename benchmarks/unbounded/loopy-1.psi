@@ -1,0 +1,15 @@
+def main() {
+    bound := 100;
+    c1 := bernoulli(1/2);
+    c2 := bernoulli(1/2);
+    
+    for i in 1..bound {
+        if !((c1 == 1) || (c2 == 1)) {
+            c1 = bernoulli(1/2);
+            c2 = bernoulli(1/2);
+        }
+    }
+    
+    return (c1, c2);
+}
+

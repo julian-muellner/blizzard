@@ -1,0 +1,44 @@
+def main() {
+    iterations := 0;
+    bound := 20;
+    
+    f := 0 : B;
+    n := 1;
+    g := bound;
+    while g >= bound && iterations < 100 {
+        n = 1;
+        g = 0;
+        iterations = iterations + 1;
+        while n < bound {
+            n = 2*n;
+            f = bernoulli(1/2);
+            if f == 1 {
+                g = 2*g;
+            } else {
+                g = 2*g+1;
+            }
+        }
+    }
+    
+    return g;
+}
+
+/*
+
+bound = 20
+g = bound
+while g >= bound:
+    n = 1
+    g = 0
+    while n < bound:
+        n = 2*n
+        f = Bernoulli(1/2)
+        if f == 1:
+            g = 2*g
+        else:
+            g = 2*g+1
+        end
+    end
+end
+
+*/

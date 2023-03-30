@@ -1,0 +1,7 @@
+fun singleRun(bc: (bool, bool)) {
+    let b = fst bc in
+    let c = snd bc in
+    if !c then bc else (!b, flip(0.5))
+}
+
+iterate(singleRun, (true, flip(0.5)), 100)

@@ -1,0 +1,23 @@
+fun singleRun(c12: (bool, bool)) {
+    let c1 = fst c12 in
+    let c2 = snd c12 in
+    if (c1 || c2) then (c1, c2) else (flip(0.5), flip(0.5))
+}
+
+iterate(singleRun, (flip(0.5), flip(0.5)), 100)
+
+//def main() {
+//    bound := 100;
+//    c1 := bernoulli(1/2);
+//    c2 := bernoulli(1/2);
+//    
+//    for i in 1..bound {
+//        if !((c1 == 1) || (c2 == 1)) {
+//            c1 = bernoulli(1/2);
+//            c2 = bernoulli(1/2);
+//        }
+//    }
+//    
+//    return (c1, c2);
+//}
+

@@ -1,0 +1,18 @@
+def main() {
+    bound := 100;
+    turn := 0 : Z;
+    result := 0;
+    
+    for i in 1..bound {
+        if result == 0 {
+            if turn == 0 {
+                result = bernoulli(2/3);
+            } else {
+                result = 2*bernoulli(4/5);
+            }
+        }
+        turn = 1 - turn;
+    }
+    
+    return result;
+}

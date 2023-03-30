@@ -1,0 +1,15 @@
+def main() {
+    bound := 100;
+    b := 1 : Z;
+    c := bernoulli(1/2);
+    
+    for i in 1..bound {
+        if c == 1 {
+            b = 1 - b;
+            c = bernoulli(1/2);
+        }
+    }
+    
+    return b;
+}
+

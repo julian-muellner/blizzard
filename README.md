@@ -1,8 +1,8 @@
 # Blizzard
-Blizzard is an inference and anaylsis tool for probabilistic programs. 
+Blizzard is an inference and analysis tool for probabilistic programs. 
 
 It fully automatically parses the input language, transforms it into a internal Markov chain representation and analyzes the Markov chain using a configurable back-end.
-Currently supported back-ends are the probabilistic model checkers Storm and PRISM.
+Currently, supported back-ends are the probabilistic model checkers Storm and PRISM.
 
 To analyze a program and extract the distribution of a variable, invoke Blizzard by running:
 

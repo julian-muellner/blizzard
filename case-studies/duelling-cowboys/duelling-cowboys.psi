@@ -1,0 +1,13 @@
+def main(){
+    //pa := beta(5.5,4);
+    //pb := beta(5.5,6);
+    
+    pa := uniform(0,1);
+    pb := uniform(0,1);
+    
+    p := pa / (pa+pb-pa*pb);
+    ahit := flip(p);
+    observe(ahit == 1);
+    
+    return pa;
+}

@@ -1,0 +1,15 @@
+dtmc
+
+const double p;
+
+module walk
+    x : [-1..12] init 4;
+    fin: [0..2] init 0;
+    
+    [] (0 < x & x < 10)&(fin=0)       -> p/3: (x'=x + 1) + p/3: (x'=x + 2) + p/3: (x'=x + 3) + (1-p): (x'=x-2);
+    [] (x <= 0 | x >= 10)&(fin=0) -> 1: (fin' = 1);
+    [] fin=1 -> 1: (fin'=2)&(x'=0);
+endmodule
+
+// ./storm --prism /data/bounded_random_walk_sink.prism -const p=0.3 --expvisittimes --exportresult /data/out.json --buildstateval
+// ./storm-pars --prism /data/bounded_random_walk_sink.prism --expvisittimes --exportresult data/out.json --buildstateval

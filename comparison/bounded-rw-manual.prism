@@ -1,0 +1,12 @@
+dtmc
+
+const double p;
+
+module walk
+    x : [-1..12] init 4;
+    [] 0 < x & x < 10       -> p/3: (x'=x + 1) + p/3: (x'=x + 2) + p/3: (x'=x + 3) + (1-p): (x'=x-2);
+    [] x <= 0 | x >= 10     -> true;
+endmodule
+
+// ./storm --prism /data/bounded_random_walk.prism --prop /data/bounded_random_walk.prop -const p=0.3
+// ./storm-pars --prism /data/bounded_random_walk.prism --prop /data/bounded_random_walk.prop

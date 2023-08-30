@@ -1,0 +1,5 @@
+# KNOWN ISSUES:
+- Usage of uninitialized variables is neither detected nor reported, may cause issues
+
+# IMPROVEMENTS:
+- Could implement binomial distribution

@@ -1,0 +1,2 @@
+//label "terminal" = x <= 0 | x >= 10;
+P=? [ F x = -1 ];P=? [ F x =  0 ];P=? [ F x = 10 ];P=? [ F x = 11 ];P=? [ F x = 12 ];
